@@ -1,2 +1,2 @@
-# FullStackOpen-GraphQL
-Helsingin yliopiston Full Stack Open GraphQL (Osa 8) tehtävien palautukset.
+# Full Stack ‑websovelluskehitys: GraphQL (Osa 8)
+Tehtävien palautukset Helsingin yliopiston [Full Stack Open](https://fullstackopen.com/) ‑verkkokurssilta.
