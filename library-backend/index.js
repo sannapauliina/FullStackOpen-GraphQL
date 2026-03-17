@@ -89,6 +89,7 @@ const typeDefs = `
 
   type Author {
     name: String!
+    born: Int
     bookCount: Int!
   }
 
@@ -98,13 +99,21 @@ const typeDefs = `
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
   }
+
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book
+  }
 `;
 
 const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
-
     allBooks: (root, args) => {
       let filteredBooks = books;
 
@@ -120,13 +129,24 @@ const resolvers = {
 
       return filteredBooks;
     },
-
     allAuthors: () => authors,
   },
 
   Author: {
-    bookCount: (root) => {
-      return books.filter((b) => b.author === root.name).length;
+    bookCount: (root) => books.filter((b) => b.author === root.name).length,
+  },
+
+  Mutation: {
+    addBook: (root, args) => {
+      const newBook = { ...args };
+      books.push(newBook);
+
+      // Jos kirjailijaa ei ole, lisätään se
+      if (!authors.find((a) => a.name === args.author)) {
+        authors.push({ name: args.author, born: null });
+      }
+
+      return newBook;
     },
   },
 };
