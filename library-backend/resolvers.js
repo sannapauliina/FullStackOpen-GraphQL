@@ -1,7 +1,11 @@
 const { GraphQLError } = require("graphql");
+const jwt = require("jsonwebtoken");
 
 const Author = require("./models/author");
 const Book = require("./models/book");
+const User = require("./models/user");
+
+const JWT_SECRET = "SUPER_SECRET_KEY";
 
 const resolvers = {
   Query: {
@@ -58,6 +62,40 @@ const resolvers = {
           },
         });
       }
+    },
+
+    createUser: async (root, args) => {
+      const user = new User({ ...args });
+
+      try {
+        return await user.save();
+      } catch (error) {
+        throw new GraphQLError("Creating user failed", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args,
+            error,
+          },
+        });
+      }
+    },
+
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username });
+
+      // Kaikilla käyttäjillä on sama salasana "secret"
+      if (!user || args.password !== "secret") {
+        throw new GraphQLError("Wrong credentials", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      };
+
+      return { value: jwt.sign(userForToken, JWT_SECRET) };
     },
   },
 };
