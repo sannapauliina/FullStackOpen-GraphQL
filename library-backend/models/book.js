@@ -4,6 +4,7 @@ const bookSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    minLength: 2,
   },
   published: {
     type: Number,
@@ -12,6 +13,7 @@ const bookSchema = new mongoose.Schema({
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Author",
+    required: true,
   },
   genres: [{ type: String }],
 });
