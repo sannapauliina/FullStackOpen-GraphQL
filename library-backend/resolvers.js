@@ -21,8 +21,20 @@ const resolvers = {
     },
   },
 
+  Author: {
+    bookCount: async (root) => {
+      return Book.countDocuments({ author: root.id });
+    },
+  },
+
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError("not authenticated", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       try {
         let author = await Author.findOne({ name: args.author });
 
@@ -46,7 +58,13 @@ const resolvers = {
       }
     },
 
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError("not authenticated", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       try {
         const author = await Author.findOne({ name: args.name });
         if (!author) return null;
