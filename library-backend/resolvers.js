@@ -7,6 +7,9 @@ const User = require("./models/user");
 
 const JWT_SECRET = "SUPER_SECRET_KEY";
 
+const { PubSub } = require("graphql-subscriptions");
+const pubsub = new PubSub();
+
 const resolvers = {
   Query: {
     bookCount: async () => Book.countDocuments(),
@@ -53,7 +56,13 @@ const resolvers = {
         const book = new Book({ ...args, author: author._id });
         await book.save();
 
-        return book.populate("author");
+        // populate kirjan tiedot (tarvitaan sekä palautukseen että subscriptioniin)
+        const savedBook = await book.populate("author");
+
+        // 🔥 Lähetetään subscription-tapahtuma (tehtävä 8.23)
+        pubsub.publish("BOOK_ADDED", { bookAdded: savedBook });
+
+        return savedBook;
       } catch (error) {
         throw new GraphQLError("Creating book failed", {
           extensions: {
@@ -121,6 +130,12 @@ const resolvers = {
       };
 
       return { value: jwt.sign(userForToken, JWT_SECRET) };
+    },
+  },
+
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator("BOOK_ADDED"),
     },
   },
 };

@@ -4,15 +4,17 @@ const express = require("express");
 const cors = require("cors");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
-const {
-  ApolloServerPluginLandingPageLocalDefault,
-} = require("@apollo/server/plugin/landingPage/default");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 const User = require("./models/user");
+
+const { createServer } = require("http");
+const { WebSocketServer } = require("ws");
+const { useServer } = require("graphql-ws/lib/use/ws");
+const playground = require("graphql-playground-middleware-express").default;
 
 const JWT_SECRET = "SUPER_SECRET_KEY";
 
@@ -26,7 +28,6 @@ mongoose
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true })],
 });
 
 const app = express();
@@ -54,7 +55,22 @@ app.use(express.json());
     }),
   );
 
-  app.listen(4000, () => {
-    console.log("Server running at http://localhost:4000/");
+  // GraphQL Playground
+  app.get("/", playground({ endpoint: "/graphql" }));
+
+  // HTTP server Expressin ympärille
+  const httpServer = createServer(app);
+
+  // WebSocket-palvelin subscriptioneille
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql",
+  });
+
+  // GraphQL WS -serveri
+  useServer({ schema: server.schema }, wsServer);
+
+  httpServer.listen(4000, () => {
+    console.log("Server running at http://localhost:4000");
   });
 })();
