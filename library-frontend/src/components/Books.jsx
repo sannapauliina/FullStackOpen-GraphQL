@@ -5,6 +5,7 @@ import { ALL_BOOKS } from "../queries";
 const Books = (props) => {
   const [genre, setGenre] = useState(null);
 
+  // Haetaan kirjat aina uudelleen kun genre muuttuu (välimuistin ajantasaisuus)
   const result = useQuery(ALL_BOOKS, {
     variables: { genre },
   });
