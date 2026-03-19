@@ -16,12 +16,15 @@ const resolvers = {
       if (!args.genre) {
         return Book.find({}).populate("author");
       }
-
       return Book.find({ genres: args.genre }).populate("author");
     },
 
     allAuthors: async () => {
       return Author.find({});
+    },
+
+    me: (root, args, context) => {
+      return context.currentUser;
     },
   },
 
