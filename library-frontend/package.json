@@ -12,8 +12,11 @@
   "dependencies": {
     "@apollo/client": "3.7",
     "graphql": "^16.13.1",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^5.16.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "subscriptions-transport-ws": "^0.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

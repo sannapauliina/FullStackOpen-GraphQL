@@ -1,6 +1,4 @@
-const { gql } = require("apollo-server");
-
-const typeDefs = gql`
+const typeDefs = `
   type Author {
     name: String!
     born: Int
@@ -16,23 +14,6 @@ const typeDefs = gql`
     id: ID!
   }
 
-  type Query {
-    bookCount: Int!
-    authorCount: Int!
-    allBooks(genre: String): [Book!]!
-    allAuthors: [Author!]!
-  }
-
-  type Mutation {
-    addBook(
-      title: String!
-      author: String!
-      published: Int!
-      genres: [String!]!
-    ): Book!
-    editAuthor(name: String!, setBornTo: Int!): Author
-  }
-
   type User {
     username: String!
     favoriteGenre: String!
@@ -43,13 +24,23 @@ const typeDefs = gql`
     value: String!
   }
 
-  extend type Query {
+  type Query {
+    bookCount: Int!
+    authorCount: Int!
+    allBooks(genre: String): [Book!]!
+    allAuthors: [Author!]!
     me: User
   }
 
-  extend type Mutation {
+  type Mutation {
+    addBook(
+      title: String!
+      author: String!
+      published: Int!
+      genres: [String!]!
+    ): Book!
+    editAuthor(name: String!, setBornTo: Int!): Author
     createUser(username: String!, favoriteGenre: String!): User
-
     login(username: String!, password: String!): Token
   }
 
@@ -58,4 +49,4 @@ const typeDefs = gql`
   }
 `;
 
-module.exports = typeDefs;
+module.exports = { typeDefs };

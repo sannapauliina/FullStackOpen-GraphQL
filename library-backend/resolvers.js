@@ -56,10 +56,10 @@ const resolvers = {
         const book = new Book({ ...args, author: author._id });
         await book.save();
 
-        // populate kirjan tiedot (tarvitaan sekä palautukseen että subscriptioniin)
+        // populate kirjan tiedot
         const savedBook = await book.populate("author");
 
-        // 🔥 Lähetetään subscription-tapahtuma (tehtävä 8.23)
+        // Lähetetään subscription-tapahtuma
         pubsub.publish("BOOK_ADDED", { bookAdded: savedBook });
 
         return savedBook;
