@@ -7,7 +7,7 @@ import NewBook from "./components/NewBook";
 import Recommendations from "./components/Recommendations";
 import LoginForm from "./components/LoginForm";
 
-import { ME, BOOK_ADDED } from "./queries";
+import { ME, BOOK_ADDED, ALL_BOOKS } from "./queries";
 
 const App = () => {
   const [page, setPage] = useState("authors");
@@ -16,12 +16,30 @@ const App = () => {
   const meResult = useQuery(ME);
 
   useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
+    onData: ({ client, data }) => {
       const payload = data?.data;
       if (!payload || !payload.bookAdded) return;
 
       const addedBook = payload.bookAdded;
+
       window.alert(`New book added: ${addedBook.title}`);
+
+      // ALL_BOOKS -kyselyn välimuistin päivitys
+      client.cache.updateQuery(
+        { query: ALL_BOOKS, variables: { genre: null } },
+        (old) => {
+          if (!old) return { allBooks: [addedBook] };
+
+          // Duplikaattien esto
+          if (old.allBooks.some((b) => b.id === addedBook.id)) {
+            return old;
+          }
+
+          return {
+            allBooks: [...old.allBooks, addedBook],
+          };
+        },
+      );
     },
   });
 
