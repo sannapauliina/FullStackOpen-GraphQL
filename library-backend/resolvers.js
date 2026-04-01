@@ -23,7 +23,21 @@ const resolvers = {
     },
 
     allAuthors: async () => {
-      return Author.find({});
+      return Author.aggregate([
+        {
+          $lookup: {
+            from: "books",
+            localField: "_id",
+            foreignField: "author",
+            as: "books",
+          },
+        },
+        {
+          $addFields: {
+            bookCount: { $size: "$books" },
+          },
+        },
+      ]);
     },
 
     me: (root, args, context) => {
@@ -32,9 +46,7 @@ const resolvers = {
   },
 
   Author: {
-    bookCount: async (root) => {
-      return Book.countDocuments({ author: root.id });
-    },
+    bookCount: (root) => root.bookCount,
   },
 
   Mutation: {
